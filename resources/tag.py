@@ -6,7 +6,7 @@ from db import db
 from models import TagModel, StoreModel, ItemTags , ItemModel
 from schemas import TagSchema, TagAndItemSchema
 
-blp = Blueprint("Tags", "tags", description="Operations on tags")
+blp = Blueprint("tags", __name__, description="Operations on tags")
 
 
 @blp.route("/store/<int:store_id>/tag")

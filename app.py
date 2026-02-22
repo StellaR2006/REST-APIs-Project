@@ -1,14 +1,13 @@
 import os
 import secrets
 
+from dotenv import load_dotenv
 from flask import Flask, jsonify
 from flask_smorest import Api
 from flask_jwt_extended import JWTManager
-from flask_migrate import Migrate
 
 from db import db
 from blocklist import BLOCKLIST
-import models
 
 from resources.item import blp as ItemBlueprint
 from resources.store import blp as StoreBlueprint
@@ -30,10 +29,10 @@ def create_app(db_url=None):
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.init_app(app)
-    migrate = Migrate(app, db)
+    
     api = Api(app)
 
-    app.config["JWT_SECRET_KEY"] = "170394549488048120172047592708776175354"
+    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
     jwt = JWTManager(app)
 
 
@@ -64,12 +63,6 @@ def create_app(db_url=None):
         )
 
 
-    @jwt.additional_claims_loader
-    def add_claims_to_jwt(identity):
-        if identity == 1:
-            return {"is_admin": True}
-        return {"is_admin": False}
-    
 
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_payload):
@@ -105,8 +98,8 @@ def create_app(db_url=None):
 
 
 
-    # with app.app_context():
-    #     db.create_all()
+    with app.app_context():
+        db.create_all()
 
     api.register_blueprint(ItemBlueprint)
     api.register_blueprint(StoreBlueprint)

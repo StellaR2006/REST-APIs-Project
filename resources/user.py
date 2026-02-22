@@ -9,7 +9,7 @@ from models import UserModel
 from schemas import UserSchema
 
 
-blp = Blueprint("Users", "users", description="Operation on users")
+blp = Blueprint("users", __name__, description="Operation on users")
 
 
 @blp.route("/register")
@@ -47,7 +47,7 @@ class UserLogin(MethodView):
 
 
 @blp.route("/refresh")
-class ToeknRefresh(MethodView):
+class TokenRefresh(MethodView):
     @jwt_required(refresh=True)
     def post(self):
         current_user = get_jwt_identity()

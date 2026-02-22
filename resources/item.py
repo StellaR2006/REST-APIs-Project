@@ -20,13 +20,14 @@ class Item(MethodView):
 
     @jwt_required()
     def delete(self, item_id):
-        jwt = get_jwt()
-        if not jwt.get("is_admin"):
-            abort(401, message="Admin privilege required.")
+        # jwt = get_jwt()
+        # if not jwt.get("is_admin"):
+        #     abort(401, message="Admin privilege required.")
         item = ItemModel.query.get_or_404(item_id)
         db.session.delete(item)
         db.session.commit()
         return {"mesaage": "Item deleted."}
+    
     
     @blp.arguments(ItemUpdateSchema)
     @blp.response(200, ItemSchema)
@@ -42,7 +43,7 @@ class Item(MethodView):
         db.session.commit()
 
         return item
-    
+
 
 
 @blp.route("/item")

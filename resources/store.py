@@ -8,6 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from db import db
 from models import StoreModel
 from schemas import StoreSchema
+
 blp = Blueprint("stores", __name__, description="Operations on stores")
 
 
@@ -47,6 +48,6 @@ class StoreList(MethodView):
                 message="A store with that name already exists."
             )
         except SQLAlchemyError:
-            abort(500, message="An error occurred creating the store")
+            abort(500, message="An error occurred while creating the store")
 
         return store
