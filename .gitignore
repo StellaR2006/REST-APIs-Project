@@ -3,5 +3,5 @@ __pycache__
 instance
 *.pyc
 .DS_Store
-migrations
 .env
+migrations
