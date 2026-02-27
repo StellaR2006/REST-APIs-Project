@@ -18,13 +18,21 @@ from resources.user import blp as UserBlueprint
 def create_app(db_url=None):
     app = Flask(__name__)
 
+    # --- Flask Configuration ---
+    # Propagate exceptions to ensure errors are handled and returned as JSON
     app.config["PROPAGATE_EXCEPTIONS"] = True
     app.config["API_TITLE"] = "Stores REST API"
     app.config["API_VERSION"] = "v1"
+
+    # --- OpenAPI / Swagger UI Setup ---
+    # Configuration for automatic API documentation generation
     app.config["OPENAPI_VERSION"] = "3.0.3"
     app.config["OPENAPI_URL_PREFIX"] = "/"
     app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
     app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
+
+    # --- OpenAPI / Swagger UI Setup ---
+    # Configuration for automatic API documentation generation
     app.config["SQLALCHEMY_DATABASE_URI"] = db_url or os.getenv("DATABASE_URL", "sqlite:///data.db")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -32,10 +40,12 @@ def create_app(db_url=None):
     
     api = Api(app)
 
+    # --- JWT Authentication Setup ---
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
     jwt = JWTManager(app)
 
 
+    # Check if a token exists in the blocklist (used for logging out)
     @jwt.token_in_blocklist_loader
     def check_if_token_in_blacklist(jwt_header, jwt_payload):
         return jwt_payload["jti"] in BLOCKLIST
@@ -63,7 +73,7 @@ def create_app(db_url=None):
         )
 
 
-
+    
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_payload):
         return (
@@ -83,6 +93,7 @@ def create_app(db_url=None):
             )
     
     
+    # Custom response when no token is provided in the headers
     @jwt.unauthorized_loader
     def missing_token_callback(error):
         return (
@@ -91,16 +102,23 @@ def create_app(db_url=None):
                 ), 401
             )
 
-
+    # # Configure what should be stored in the JWT's identity field
     @jwt.user_identity_loader
     def user_identity_lookup(user):
+        """
+        Convert a user object to a string identity for the JWT.
+        Returns the user's ID or the object itself if no ID attribute exists.
+        """
         return str(user.id) if hasattr(user, 'id') else str(user)
 
 
-
+    # --- Database Initialization ---
+    # Create database tables if they don't already exist
     with app.app_context():
         db.create_all()
 
+    # --- Blueprint Registration ---
+    # Register different API modules to the main application
     api.register_blueprint(ItemBlueprint)
     api.register_blueprint(StoreBlueprint)
     api.register_blueprint(TagBlueprint)

@@ -12,6 +12,7 @@ blp = Blueprint("tags", __name__, description="Operations on tags")
 @blp.route("/store/<int:store_id>/tag")
 class TagsInStore(MethodView):
     @blp.response(200, TagSchema(many=True))
+    # Retrieve all tags registered to a specific store
     def get(self, store_id):
         store = StoreModel.query.get_or_404(store_id)
 
@@ -20,6 +21,7 @@ class TagsInStore(MethodView):
 
     @blp.arguments(TagSchema)
     @blp.response(201, TagSchema)
+    # Retrieve all tags registered to a specific store
     def post(self, tag_data, store_id):
         tag = TagModel(**tag_data, store_id=store_id)
 
@@ -38,6 +40,7 @@ class TagsInStore(MethodView):
 @blp.route("/item/<int:item_id>/tag/<int:tag_id>")
 class LinkTagsToItem(MethodView):
     @blp.response(201, TagSchema)
+    # Link a tag to a specific item
     def post(self, item_id, tag_id):
         item = ItemModel.query.get_or_404(item_id)
         tag = TagModel.query.get_or_404(tag_id)
@@ -55,6 +58,7 @@ class LinkTagsToItem(MethodView):
 
 
     @blp.response(201, TagAndItemSchema)
+    # Remove a tag from an item
     def delete(self, item_id, tag_id):
         item = ItemModel.query.get_or_404(item_id)
         tag = TagModel.query.get_or_404(tag_id)
@@ -76,6 +80,7 @@ class LinkTagsToItem(MethodView):
 @blp.route("/tag/<int:tag_id>")
 class Tag(MethodView):
     @blp.response(200, TagSchema)
+    # retrieve tag details using its unique identifier
     def get(self, tag_id):
         tag = TagModel.query.get_or_404(tag_id)
         return tag
@@ -91,6 +96,8 @@ class Tag(MethodView):
         400,
         description="Returned if the tag is assigned to one or more item, In this case, the tag is not deleted."
     )
+
+    # Delete a tag by its ID
     def delete(self, tag_id):
         tag = TagModel.query.get_or_404(tag_id)
 

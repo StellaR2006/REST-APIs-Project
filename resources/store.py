@@ -12,15 +12,15 @@ from schemas import StoreSchema
 blp = Blueprint("stores", __name__, description="Operations on stores")
 
 
-
 @blp.route("/store/<int:store_id>")
 class Store(MethodView):
     @blp.response(200, StoreSchema)
+    # retrieve store details using its unique identifier
     def get(self, store_id):
         store = StoreModel.query.get_or_404(store_id)
         return store
 
-
+    # Delete a store by its ID
     def delete(self, store_id):
         store = StoreModel.query.get_or_404(store_id)
         db.session.delete(store)
@@ -31,12 +31,14 @@ class Store(MethodView):
 @blp.route("/store")
 class StoreList(MethodView):
     @blp.response(200, StoreSchema(many=True))
+    # Retrieve a list of all stores
     def get(self):
         return StoreModel.query.all()
     
 
     @blp.arguments(StoreSchema)
     @blp.response(200, StoreSchema)
+    # Create a new store
     def post(self, store_data):
         store = StoreModel(**store_data)
         try:

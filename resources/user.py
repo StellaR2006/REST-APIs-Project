@@ -15,10 +15,10 @@ blp = Blueprint("users", __name__, description="Operation on users")
 @blp.route("/register")
 class UserRegister(MethodView):
     @blp.arguments(UserSchema)
+    # Register a new user with a hashed password
     def post(self, user_data):
         if UserModel.query.filter(UserModel.username == user_data["username"]).first():
             abort(409, message="A user with that username already exists.")
-
 
         user = UserModel(
             username = user_data["username"],
@@ -33,6 +33,7 @@ class UserRegister(MethodView):
 @blp.route("/login")
 class UserLogin(MethodView):
     @blp.arguments(UserSchema)
+    # Authenticate user and generate access and refresh tokens
     def post(self, user_data):
         user = UserModel.query.filter(
             UserModel.username == user_data["username"]
@@ -49,6 +50,7 @@ class UserLogin(MethodView):
 @blp.route("/refresh")
 class TokenRefresh(MethodView):
     @jwt_required(refresh=True)
+    # Generate a new non-fresh access token using a refresh token
     def post(self):
         current_user = get_jwt_identity()
         new_token = create_access_token(identity=current_user, fresh=False)
@@ -60,6 +62,7 @@ class TokenRefresh(MethodView):
 @blp.route("/logout")
 class UserLogout(MethodView):
     @jwt_required()
+    # Revoke the current access token by adding it to the blocklist
     def post(self):
         jti = get_jwt()["jti"]
         BLOCKLIST.add(jti)
@@ -69,10 +72,12 @@ class UserLogout(MethodView):
 @blp.route("/user/<int:user_id>")
 class User(MethodView):
     @blp.response(200, UserSchema)
+    # Retrieve user profile details by their ID
     def get(self, user_id):
         user = UserModel.query.get_or_404(user_id)
         return user
     
+    # Permanently delete a user account from the system
     def delete(self, user_id):
         user = UserModel.query.get_or_404(user_id)
         db.session.delete(user)

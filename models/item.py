@@ -1,5 +1,7 @@
 from db import db
 
+
+# Database model for the 'items' table, defining its structure and relationships
 class ItemModel(db.Model):
     __tablename__ = "items"
     

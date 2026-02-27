@@ -1,5 +1,7 @@
 from db import db
 
+
+# Database model for the 'users' table, defining its structure
 class UserModel(db.Model):
     __tablename__ = "users"
     

@@ -1,5 +1,7 @@
 from db import db
 
+
+# Database model for the 'stores' table, defining its structure and relationships
 class StoreModel(db.Model):
     __tablename__ = "stores"
 
